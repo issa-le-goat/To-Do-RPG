@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yboost</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ÉCRAN AUTH -->
+  <main class="app auth-view" id="authView">
+    <div class="auth-head">
+      <p class="eyebrow">Yboost</p>
+      <h1 id="authTitle">Bon retour</h1>
+      <p class="auth-sub" id="authSub">Connecte-toi pour reprendre ta progression.</p>
+    </div>
+    <div class="field">
+      <label for="authName">Nom de joueur</label>
+      <input id="authName" type="text" autocomplete="username" placeholder="ex. Camille" />
+    </div>
+    <div class="field" id="mailField" hidden>
+      <label for="authMail">E-mail</label>
+      <input id="authMail" type="email" autocomplete="email" placeholder="camille@exemple.fr" />
+    </div>
+    <div class="field">
+      <label for="authPass">Mot de passe</label>
+      <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+    </div>
+    <p class="auth-error" id="authError"></p>
+    <button class="btn-primary" id="authSubmit">Se connecter</button>
+    <p class="auth-switch">
+      <span id="switchText">Pas encore de compte ?</span>
+      <button class="link-accent" id="switchMode">Créer un compte</button>
+    </p>
+    <p class="auth-note">Maquette locale : les comptes restent sur cet appareil et ne sont pas chiffrés.</p>
+  </main>
+
+  <!-- APP -->
+  <div class="shell" id="appView" hidden>
+
+    <!-- Barre du haut : identité + niveau + XP -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="top-medal" id="topMedal"></span>
+        <div>
+          <p class="top-hello" id="hello">Joueur</p>
+          <p class="top-grade-line">
+            <span id="topLevel">Niv. 0</span> ·
+            <span id="topGrade" class="top-grade">Bronze</span>
+          </p>
+        </div>
+      </div>
+      <div class="topbar-xp">
+        <div class="xpbar-track"><div class="xpbar-fill" id="topXpBar"></div></div>
+        <span class="xpbar-text" id="topXpText">0 / 100 XP</span>
+      </div>
+      <button class="icon-btn" id="logoutBtn" aria-label="Se déconnecter" title="Se déconnecter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <button class="navtab is-active" data-page="planning">Planning</button>
+      <button class="navtab" data-page="done">Terminées</button>
+      <button class="navtab" data-page="profile">Profil</button>
+      <button class="navtab" data-page="leaderboard">Classement</button>
+    </nav>
+
+    <!-- PAGE PLANNING -->
+    <section class="page" id="page-planning">
+      <div class="week-bar">
+        <div class="week-nav">
+          <button class="week-btn" id="prevWeek" aria-label="Semaine précédente">‹</button>
+          <button class="week-btn" id="todayWeek">Aujourd'hui</button>
+          <button class="week-btn" id="nextWeek" aria-label="Semaine suivante">›</button>
+        </div>
+        <span class="week-label" id="weekLabel"></span>
+        <button class="btn-primary small" id="addTaskBtn">+ Tâche</button>
+      </div>
+      <p class="hint">Clique sur une case horaire pour créer une tâche, ou sur un bloc pour le détail.</p>
+      <div class="planning-scroll">
+        <div class="planning-grid" id="planningGrid"></div>
+      </div>
+    </section>
+
+    <!-- PAGE TERMINÉES -->
+    <section class="page" id="page-done" hidden>
+      <div class="page-head">
+        <h2>Tâches terminées</h2>
+        <span class="page-sub" id="doneSummary"></span>
+      </div>
+      <ul class="done-list" id="doneList"></ul>
+      <p class="empty" id="doneEmpty">Aucune tâche terminée pour l'instant. File en gagner !</p>
+    </section>
+
+    <!-- PAGE PROFIL -->
+    <section class="page" id="page-profile" hidden>
+      <div class="profile-card">
+        <div class="profile-top">
+          <span class="profile-medal" id="pMedal"></span>
+          <div class="profile-id">
+            <h2 id="pName">—</h2>
+            <p class="profile-grade" id="pGrade">Bronze</p>
+            <p class="profile-mail" id="pMail">—</p>
+          </div>
+        </div>
+
+        <div class="profile-progress">
+          <div class="xpbar-track big"><div class="xpbar-fill" id="pBar"></div></div>
+          <span class="xpbar-text" id="pBarText"></span>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat"><span class="stat-num" id="pLevel">0</span><span class="stat-lbl">Niveau</span></div>
+          <div class="stat"><span class="stat-num" id="pTotalXp">0 XP</span><span class="stat-lbl">XP totale</span></div>
+          <div class="stat"><span class="stat-num" id="pStreak">0 j</span><span class="stat-lbl">Série</span></div>
+          <div class="stat"><span class="stat-num" id="pDone">0</span><span class="stat-lbl">Terminées</span></div>
+        </div>
+
+        <div class="profile-edit">
+          <label for="pMailInput">Modifier l'e-mail</label>
+          <div class="mail-row">
+            <input id="pMailInput" type="email" placeholder="ton@email.fr" />
+            <button class="btn-primary small" id="pSaveMail">Enregistrer</button>
+          </div>
+          <span class="saved-note" id="pSavedNote">Enregistré ✓</span>
+        </div>
+      </div>
+
+      <div class="grades-legend">
+        <p class="legend-title">Grades</p>
+        <div class="legend-items">
+          <span class="legend-item"><b style="color:#a9713c">●</b> Bronze 0-9</span>
+          <span class="legend-item"><b style="color:#9298a1">●</b> Argent 10-19</span>
+          <span class="legend-item"><b style="color:#c9a22e">●</b> Or 20-29</span>
+          <span class="legend-item"><b style="color:#4aa3a0">●</b> Platine 30-39</span>
+          <span class="legend-item"><b style="color:#5b8def">●</b> Diamant 40-49</span>
+          <span class="legend-item"><b style="color:#9b59b6">●</b> Maître 50+</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE CLASSEMENT -->
+    <section class="page" id="page-leaderboard" hidden>
+      <div class="page-head">
+        <h2>Classement</h2>
+        <span class="page-sub">Les joueurs avec le plus d'XP</span>
+      </div>
+      <ol class="lb-list" id="lbList"></ol>
+    </section>
+
+  </div>
+
+  <!-- MODALE TÂCHE -->
+  <div class="modal" id="taskModal" hidden>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nouvelle tâche</h3>
+        <button class="icon-btn" id="mClose" aria-label="Fermer">✕</button>
+      </div>
+      <div class="modal-body">
+        <label>Titre
+          <input id="mTitle" type="text" placeholder="ex. Réviser le chapitre 3" />
+        </label>
+        <label>Description
+          <textarea id="mDesc" rows="3" placeholder="Détails de la tâche…"></textarea>
+        </label>
+        <div class="modal-row">
+          <label>Jour
+            <select id="mDay"></select>
+          </label>
+          <label>Début
+            <input id="mStart" type="time" value="08:00" />
+          </label>
+        </div>
+        <div class="modal-row">
+          <label>Durée (min)
+            <input id="mDur" type="number" min="15" step="15" value="60" />
+          </label>
+          <label>Priorité
+            <select id="mPriority">
+              <option value="1">Normale</option>
+              <option value="2">Importante</option>
+              <option value="3">Urgente</option>
+            </select>
+          </label>
+        </div>
+        <p class="xp-estimate" id="xpEstimate"></p>
+        <input id="mXp" type="hidden" value="20" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost danger" id="mDelete" hidden>Supprimer</button>
+        <button class="btn-ghost" id="mDone" hidden>Terminer (+XP)</button>
+        <button class="btn-primary" id="mSave">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="app-core.js"></script>
+</body>
+</html>
