@@ -1,8 +1,6 @@
-/* =========================================================
-   Yboost - planning gamifié (maquette 100% locale)
-   ATTENTION : stockage navigateur, non sécurisé. Le mot de
-   passe n'est que "brouillé". Ne pas réutiliser un vrai mdp.
-   ========================================================= */
+// Yboost — planning gamifié. Tout tourne dans le navigateur quand le back
+// n'est pas là (mode démo). Note : le mot de passe est juste "brouillé", pas
+// vraiment chiffré — donc à ne pas réutiliser ailleurs.
 
 const USERS_KEY = "yboost.users.v1";
 const SESSION_KEY = "yboost.session.v1";
@@ -13,7 +11,7 @@ let current = null;
 let mode = "login";
 let weekOffset = 0; // 0 = semaine courante, -1 = précédente, +1 = suivante
 
-/* ---------- Persistance ---------- */
+// lecture / écriture dans le localStorage
 function loadUsers() {
   try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; }
   catch { return {}; }
@@ -21,7 +19,8 @@ function loadUsers() {
 function saveUsers() { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
 function data() { return users[current]; }
 
-/* ---------- "Hachage" léger (PAS de vraie sécurité) ---------- */
+// "hachage" maison, vite fait. Pas sécurisé du tout, juste pour pas
+// stocker le mdp en clair dans une démo.
 function obscure(str) {
   let h = 0;
   for (let i = 0; i < str.length; i++) {
@@ -31,13 +30,11 @@ function obscure(str) {
   return "h" + (h >>> 0).toString(36);
 }
 
-/* =========================================================
-   SYSTÈME XP / NIVEAUX / GRADES
-   ========================================================= */
-// XP nécessaire pour PASSER du niveau n au niveau n+1.
+// --- XP, niveaux et grades ---
+// combien d'xp pour passer du niveau n au suivant
 function xpForLevel(n) { return 100 + n * 50; }
 
-// À partir d'une XP totale, calcule niveau + progression dans le niveau.
+// à partir de l'xp totale -> niveau atteint + progression dans le niveau
 function levelInfo(totalXp) {
   let level = 0;
   let remaining = totalXp;
@@ -48,14 +45,14 @@ function levelInfo(totalXp) {
   const need = xpForLevel(level);
   return {
     level,
-    inLevel: remaining,        // XP accumulée dans le niveau courant
-    need,                      // XP totale requise pour ce niveau
-    toNext: need - remaining,  // XP restante avant le prochain niveau
+    inLevel: remaining,        // xp dans le niveau actuel
+    need,                      // xp à atteindre
+    toNext: need - remaining,  // ce qu'il reste avant de level up
     pct: Math.round((remaining / need) * 100),
   };
 }
 
-// En mode live, lvl/exp/expNext viennent du serveur ; sinon calcul local.
+// en live on prend les valeurs du serveur, sinon on calcule nous-mêmes
 function currentLevelInfo(u) {
   if (u && u.live) {
     const need = u.expNext || 1;
@@ -85,7 +82,7 @@ function gradeFor(level) {
   return g;
 }
 
-// Médaille SVG colorée selon le grade.
+// la petite médaille (SVG) colorée selon le grade
 function medalSVG(level, size = 40) {
   const g = gradeFor(level);
   return `
@@ -103,9 +100,7 @@ function medalSVG(level, size = 40) {
   </svg>`;
 }
 
-/* =========================================================
-   GÉNÉRATION / SEED
-   ========================================================= */
+// --- données de démarrage (faux joueurs, tâches d'exemple) ---
 function defaultProfile(name, pass) {
   return {
     display: name,
@@ -123,18 +118,13 @@ function defaultProfile(name, pass) {
   };
 }
 
-/* =========================================================
-   COINS — gagnés selon la priorité de la tâche
-   ========================================================= */
+// coins gagnés à chaque tâche, selon sa priorité
 const COINS_BY_PRIORITY = { 1: 10, 2: 25, 3: 50 };
 function coinsForTask(priority) {
   return COINS_BY_PRIORITY[priority] || COINS_BY_PRIORITY[1];
 }
 
-/* =========================================================
-   CATALOGUE BOUTIQUE — récompenses FICTIVES (démo)
-   Ce ne sont pas de vrais lots : aucune valeur réelle.
-   ========================================================= */
+// catalogue de la boutique - tout est fictif, c'est une démo (aucun vrai lot)
 const SHOP_CATALOG = [
   { id: "gc_amazon",  name: "Carte cadeau Amazon 25€",   cost: 500,  emoji: "🎁", tag: "Carte cadeau" },
   { id: "gc_fnac",    name: "Carte cadeau Fnac 50€",      cost: 950,  emoji: "🎟️", tag: "Carte cadeau" },
@@ -147,7 +137,7 @@ const SHOP_CATALOG = [
   { id: "trip_bali",  name: "Séjour à Bali (1 semaine)",  cost: 12000, emoji: "🏝️", tag: "Voyage" },
 ];
 
-// Tâches fictives pré-remplies pour une démo immédiate (mode local).
+// une poignée de tâches d'exemple pour avoir un planning rempli direct
 function seedDemoTasks(profile) {
   const t = (id, title, desc, day, start, durMin, priority, done) => ({
     id, title, desc, day, start, durMin, priority,
@@ -168,7 +158,7 @@ function seedDemoTasks(profile) {
   profile.nextId = 8;
 }
 
-// Joueurs fictifs pour étoffer le classement.
+// quelques faux joueurs pour que le classement ne soit pas vide
 function seedFakePlayers() {
   if (localStorage.getItem(SEED_KEY)) return;
   const fakes = [
@@ -200,9 +190,7 @@ function seedFakePlayers() {
   saveUsers();
 }
 
-/* =========================================================
-   AUTHENTIFICATION
-   ========================================================= */
+// --- connexion / inscription ---
 const authView = document.getElementById("authView");
 const appView = document.getElementById("appView");
 const authTitle = document.getElementById("authTitle");
@@ -332,7 +320,7 @@ function startSession(key, isNew) {
   refreshTopBar();
 }
 
-// Affiche/masque l'onglet Admin selon le compte.
+// onglet admin visible seulement pour... l'admin
 function applyAdminUI(isAdmin) {
   const tab = document.querySelector('.navtab[data-page="admin"]');
   if (tab) tab.hidden = !isAdmin;
@@ -348,14 +336,9 @@ function logout() {
 }
 document.getElementById("logoutBtn").onclick = logout;
 
-/* =========================================================
-   PONT VERS LE BACK GO
-   ---------------------------------------------------------
-   En mode LIVE : le serveur est la source de vérité pour
-   l'XP, le niveau, le rang et les tâches. Le front charge
-   ces données dans la structure locale `data()` puis se
-   contente de les afficher.
-   ========================================================= */
+// Pont vers le back Go.
+// En mode "live", c'est le serveur qui fait foi pour l'xp, le niveau et les
+// tâches : on charge tout ça dans data() et on se contente de l'afficher.
 let LIVE = null;          // null = pas encore testé
 let serverUserId = null;  // id de l'utilisateur côté serveur
 
@@ -425,19 +408,15 @@ async function startServerSession(serverUser) {
 }
 
 
-/* =========================================================
-   HISTORIQUE (journal d'actions)
-   ========================================================= */
+// petit journal des actions de l'utilisateur
 function log(type, taskText) {
   data().history.unshift({ type, task: taskText, at: Date.now() });
   if (data().history.length > 300) data().history.length = 300;
   saveUsers();
 }
 
-/* =========================================================
-   NAVIGATION ENTRE PAGES
-   ========================================================= */
-const PAGES = ["planning", "done", "shop", "profile", "leaderboard", "admin"];
+// --- navigation entre les pages ---
+const PAGES = ["planning", "done", "shop", "rewards", "profile", "leaderboard", "admin"];
 function goTo(page) {
   document.querySelectorAll(".navtab").forEach((t) =>
     t.classList.toggle("is-active", t.dataset.page === page)
@@ -449,6 +428,7 @@ function goTo(page) {
   if (page === "planning") renderPlanning();
   if (page === "done") renderDone();
   if (page === "shop") renderShop();
+  if (page === "rewards") renderRewards();
   if (page === "profile") renderProfile();
   if (page === "leaderboard") renderLeaderboard();
   if (page === "admin") renderAdmin();
@@ -457,9 +437,7 @@ document.querySelectorAll(".navtab").forEach((t) => {
   t.onclick = () => goTo(t.dataset.page);
 });
 
-/* =========================================================
-   BARRE DU HAUT (niveau + XP)
-   ========================================================= */
+// barre du haut : pseudo, niveau, xp, coins
 function refreshTopBar() {
   const u = data();
   const info = currentLevelInfo(u);
@@ -476,9 +454,7 @@ function refreshTopBar() {
   if (coinEl) coinEl.textContent = (u.coins || 0).toLocaleString("fr-FR");
 }
 
-/* =========================================================
-   XP : gain lors de la complétion d'une tâche
-   ========================================================= */
+// calcul du gain d'xp quand on termine une tâche (avec bonus de série)
 const STREAK_BONUS = 0.1;     // +10% d'XP par jour de série
 const STREAK_CAP = 1.0;       // bonus plafonné à +100%
 
@@ -503,9 +479,7 @@ function xpGain(baseXp) {
   return Math.round(baseXp * Math.max(1, mult));
 }
 
-/* =========================================================
-   PLANNING HEBDOMADAIRE (style Hyperplanning)
-   ========================================================= */
+// --- le planning de la semaine (grille jours x heures) ---
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 const DAY_SHORT = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const HOUR_START = 7;   // grille de 7h
@@ -620,9 +594,7 @@ function escapeHtml(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-/* =========================================================
-   MODALE TÂCHE (création / édition / détail)
-   ========================================================= */
+// --- la fenêtre pour créer / voir / modifier une tâche ---
 const modal = document.getElementById("taskModal");
 const mTitle = document.getElementById("mTitle");
 const mDesc = document.getElementById("mDesc");
@@ -841,9 +813,7 @@ function flyXp(n) {
   setTimeout(() => c.remove(), 1100);
 }
 
-/* =========================================================
-   PAGE : TÂCHES TERMINÉES
-   ========================================================= */
+// page des tâches terminées
 function renderDone() {
   const u = data();
   const done = u.tasks.filter((t) => t.done)
@@ -871,9 +841,7 @@ function renderDone() {
     done.length ? `${done.length} tâche${done.length > 1 ? "s" : ""} · ${totalXp} XP gagnés` : "";
 }
 
-/* =========================================================
-   PAGE : PROFIL
-   ========================================================= */
+// page profil
 function renderProfile() {
   const u = data();
   const info = currentLevelInfo(u);
@@ -915,9 +883,7 @@ document.getElementById("pSaveMail").onclick = async () => {
   setTimeout(() => (note.style.opacity = "0"), 1500);
 };
 
-/* =========================================================
-   PAGE : LEADERBOARD
-   ========================================================= */
+// page classement
 async function renderLeaderboard() {
   const list = document.getElementById("lbList");
 
@@ -972,9 +938,7 @@ async function renderLeaderboard() {
   });
 }
 
-/* =========================================================
-   PAGE : BOUTIQUE (récompenses fictives)
-   ========================================================= */
+// page boutique
 function renderShop() {
   const u = data();
   document.getElementById("shopCoins").textContent = (u.coins || 0).toLocaleString("fr-FR");
@@ -1022,13 +986,40 @@ function showShopToast(r) {
   showShopToast._t = setTimeout(() => t.classList.remove("show"), 2600);
 }
 
-/* =========================================================
-   PAGE : DASHBOARD ADMIN
-   ---------------------------------------------------------
-   Donne XP et coins à volonté (mode démo local). En mode
-   relié au back, l'XP serveur nécessiterait une route Go
-   dédiée (absente pour l'instant) : voir le guide.
-   ========================================================= */
+// page "mes récompenses" : ce qu'on a acheté avec les coins
+function renderRewards() {
+  const u = data();
+  const purchases = u.purchases || [];
+  const list = document.getElementById("rewardsList");
+  list.innerHTML = "";
+
+  purchases.forEach((p) => {
+    const cat = SHOP_CATALOG.find((c) => c.id === p.rewardId) || {};
+    const when = p.at
+      ? new Date(p.at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+      : "";
+    const li = document.createElement("li");
+    li.className = "reward-row";
+    li.innerHTML = `
+      <span class="reward-emoji">${cat.emoji || "🎁"}</span>
+      <div class="reward-body">
+        <div class="reward-name">${escapeHtml(p.name)}</div>
+        <div class="reward-meta">${cat.tag ? escapeHtml(cat.tag) + " · " : ""}échangé le ${when}</div>
+      </div>
+      <span class="reward-price"><span class="coin-dot">●</span> ${p.cost.toLocaleString("fr-FR")}</span>`;
+    list.appendChild(li);
+  });
+
+  document.getElementById("rewardsEmpty").style.display = purchases.length ? "none" : "block";
+  const spent = purchases.reduce((s, p) => s + (p.cost || 0), 0);
+  document.getElementById("rewardsSummary").textContent = purchases.length
+    ? `${purchases.length} récompense${purchases.length > 1 ? "s" : ""} · ${spent.toLocaleString("fr-FR")} coins dépensés`
+    : "";
+}
+
+// Dashboard admin : donne de l'xp et des coins à volonté.
+// Marche en local ; pour pousser de l'xp sur le vrai serveur il faudrait
+// une route Go dédiée (pas encore là, cf le guide).
 function renderAdmin() {
   const u = data();
   if (!u.isAdmin) { goTo("planning"); return; }
@@ -1109,9 +1100,7 @@ function wireAdminButtons() {
   };
 }
 
-/* =========================================================
-   DÉMARRAGE
-   ========================================================= */
+// --- au lancement ---
 (async function init() {
   setMode("login");
 

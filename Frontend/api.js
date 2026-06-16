@@ -1,23 +1,20 @@
-/* =========================================================
-   api.js — pont entre le front Yboost et le back Go (Gin).
-   Tout ce qui dépend du serveur (URL, noms de champs JSON)
-   est rassemblé ici. Si le back change, on ne touche qu'ici.
-
-   Contrats du back (lus dans Handelers.go / fetch.go) :
-     POST /users/register      { name, email, password } -> { userID }
-     POST /users/login         { identifier, password }  -> { user }
-     GET  /users/:id/profile                              -> User
-     DELETE /users/:id
-     POST /tasks/              { user_id, name, description, due_date, duration, priority }
-     GET  /tasks/user/:id                                 -> { tasks }  (état "todo")
-     GET  /tasks/completed/:id                            -> { tasks }  (état "done")
-     PUT  /tasks/:id/complete  { user_id }                -> XP recalculée côté serveur
-     DELETE /tasks/:id?user_id=...
-     GET  /leaderboard                                    -> { leaderboard:[{name,lvl}] }
-
-   Important : l'XP, le niveau et le rang sont calculés par le
-   SERVEUR. Le front ne fait que les afficher.
-   ========================================================= */
+// api.js
+// Tout ce qui touche au serveur passe par ici. Si une route ou un nom de
+// champ change côté Go, c'est le seul fichier à modifier.
+//
+// Rappel des routes du back (cf Handelers.go / fetch.go) :
+//   POST /users/register      { name, email, password }
+//   POST /users/login         { identifier, password }
+//   GET  /users/:id/profile
+//   POST /tasks/              { user_id, name, description, due_date, duration, priority }
+//   GET  /tasks/user/:id      -> tâches "todo"
+//   GET  /tasks/completed/:id -> tâches "done"
+//   PUT  /tasks/:id/complete  { user_id }   (le serveur recalcule l'XP)
+//   DELETE /tasks/:id?user_id=...
+//   GET  /leaderboard
+//
+// À retenir : l'XP, le niveau et le rang viennent du serveur, le front se
+// contente de les afficher.
 
 const API_BASE = "http://localhost:3000";
 
@@ -54,7 +51,7 @@ async function request(path, { method = "GET", body } = {}) {
   return data;
 }
 
-// Le back attend une date SQL "YYYY-MM-DD HH:MM:SS".
+// format que MySQL veut : "YYYY-MM-DD HH:MM:SS"
 function toSqlDate(jsDate) {
   const p = (n) => String(n).padStart(2, "0");
   return (
@@ -63,11 +60,11 @@ function toSqlDate(jsDate) {
   );
 }
 
-// Convertit une tâche du back vers la forme attendue par le front.
+// passe d'une tâche serveur à la forme qu'attend le planning
 // Back : { id, user_id, name, description, due_date, duration, priority, state, exp_reward }
 function normalizeTask(t = {}) {
   const due = t.due_date ? new Date(t.due_date) : null;
-  // jour de la semaine lundi=0 ... dimanche=6
+  // lundi = 0, dimanche = 6
   let day = 0, start = "08:00";
   if (due && !isNaN(due)) {
     day = (due.getDay() + 6) % 7;
@@ -100,7 +97,7 @@ const api = {
   login: (identifier, password) =>
     request("/users/login", { method: "POST", body: { identifier, password } }),
 
-  // Renvoie l'objet User complet (lvl, exp, exp_next, rank, progress…)
+  // profil complet du joueur (niveau, xp, rang...)
   profile: (userId) => request(`/users/${userId}/profile`),
 
   deleteUser: (userId) => request(`/users/${userId}`, { method: "DELETE" }),
@@ -114,13 +111,13 @@ const api = {
     const d = await request(`/tasks/completed/${userId}`);
     return (d?.tasks || []).map(normalizeTask);
   },
-  // Toutes les tâches (todo + done), pour le planning.
+  // todo + done, pour remplir le planning
   async listAll(userId) {
     const [todo, done] = await Promise.all([this.listTodo(userId), this.listDone(userId)]);
     return [...todo, ...done];
   },
 
-  // Le back calcule lui-même l'exp_reward à partir de durée/priorité.
+  // pas besoin d'envoyer l'xp : le serveur la calcule (durée x priorité)
   createTask: (userId, { title, desc, dueDateObj, durMin, priority }) =>
     request("/tasks/", {
       method: "POST",
@@ -134,7 +131,7 @@ const api = {
       },
     }),
 
-  // Terminer une tâche : le serveur met l'état à "done" ET recalcule l'XP/niveau.
+  // le serveur passe la tâche en "done" et met l'xp à jour
   completeTask: (taskId, userId) =>
     request(`/tasks/${taskId}/complete`, { method: "PUT", body: { user_id: Number(userId) } }),
 
@@ -148,7 +145,7 @@ const api = {
   },
 };
 
-// Sonde le back une seule fois (mis en cache) pour décider live vs démo.
+// on teste le back une fois et on garde le résultat (live ou démo)
 let _alive = null;
 async function backendAlive() {
   if (_alive !== null) return _alive;

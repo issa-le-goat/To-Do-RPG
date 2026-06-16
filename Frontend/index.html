@@ -72,6 +72,7 @@
       <button class="navtab is-active" data-page="planning">Planning</button>
       <button class="navtab" data-page="done">Terminées</button>
       <button class="navtab" data-page="shop">Boutique</button>
+      <button class="navtab" data-page="rewards">Récompenses</button>
       <button class="navtab" data-page="profile">Profil</button>
       <button class="navtab" data-page="leaderboard">Classement</button>
       <button class="navtab navtab-admin" data-page="admin" hidden>⚙ Admin</button>
@@ -172,6 +173,16 @@
       </div>
       <div class="shop-grid" id="shopGrid"></div>
       <div class="shop-toast" id="shopToast"></div>
+    </section>
+
+    <!-- PAGE RÉCOMPENSES (achats effectués) -->
+    <section class="page" id="page-rewards" hidden>
+      <div class="page-head">
+        <h2>Mes récompenses</h2>
+        <span class="page-sub" id="rewardsSummary"></span>
+      </div>
+      <ul class="rewards-list" id="rewardsList"></ul>
+      <p class="empty" id="rewardsEmpty">Tu n'as encore rien échangé. Direction la boutique !</p>
     </section>
 
     <!-- PAGE ADMIN (dashboard) -->

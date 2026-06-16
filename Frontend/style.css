@@ -36,7 +36,7 @@ body {
 
 h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
 
-/* ===================== AUTH ===================== */
+/* écran de connexion */
 .app {
   width: 100%;
   max-width: 540px;
@@ -79,7 +79,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .link-accent:hover { text-decoration: underline; text-underline-offset: 3px; }
 .auth-note { text-align: center; font-size: 0.72rem; color: var(--ink-faint); margin-top: 1.5rem; line-height: 1.5; }
 
-/* ===================== BOUTONS ===================== */
+/* boutons */
 .btn-primary {
   font-family: var(--sans); font-size: 0.95rem; font-weight: 500;
   padding: 13px; width: 100%; background: var(--accent); color: #fff;
@@ -105,7 +105,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 }
 .icon-btn:hover { color: var(--accent); border-color: var(--accent); }
 
-/* ===================== SHELL / TOPBAR ===================== */
+/* cadre général + barre du haut */
 .shell { max-width: 920px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 
 .topbar {
@@ -137,7 +137,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
   100% { opacity: 0; transform: translate(-50%, -40px) scale(1.1); }
 }
 
-/* ===================== NAVBAR ===================== */
+/* onglets */
 .navbar {
   display: flex; gap: 4px; margin-bottom: 18px;
   border-bottom: 1px solid var(--rule);
@@ -159,7 +159,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .page-sub { font-size: 0.85rem; color: var(--ink-soft); font-style: italic; }
 .hint { font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 12px; }
 
-/* ===================== PLANNING ===================== */
+/* --- planning de la semaine --- */
 .week-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
 .week-nav { display: flex; gap: 4px; }
 .week-btn {
@@ -204,7 +204,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .event-title { font-size: 0.78rem; font-weight: 600; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .event-meta { font-size: 0.66rem; opacity: 0.9; margin-top: 1px; }
 
-/* ===================== TERMINÉES ===================== */
+/* liste des tâches terminées */
 .done-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .done-item {
   display: flex; align-items: center; gap: 12px; padding: 13px 16px;
@@ -220,7 +220,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .done-meta { font-size: 0.76rem; color: var(--ink-soft); margin-top: 1px; }
 .done-xp { font-weight: 600; color: var(--accent); font-size: 0.85rem; }
 
-/* ===================== PROFIL ===================== */
+/* page profil */
 .profile-card {
   background: var(--card); border: 1px solid var(--rule);
   border-radius: 18px; padding: 1.5rem; margin-bottom: 1.25rem;
@@ -253,7 +253,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .legend-items { display: flex; flex-wrap: wrap; gap: 10px 18px; }
 .legend-item { font-size: 0.85rem; color: var(--ink-soft); }
 
-/* ===================== CLASSEMENT ===================== */
+/* classement */
 .lb-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .lb-row {
   display: flex; align-items: center; gap: 14px; padding: 12px 16px;
@@ -276,7 +276,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 
 .empty { text-align: center; font-family: var(--serif); font-style: italic; color: var(--ink-faint); font-size: 1.05rem; padding: 3rem 0; }
 
-/* ===================== MODALE ===================== */
+/* fenêtre tâche */
 .modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.45); backdrop-filter: blur(2px); }
 .modal-box {
@@ -308,7 +308,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
-/* ===== Douceur thème clair : ombres légères et flottantes ===== */
+/* petites ombres douces un peu partout */
 .planning-scroll,
 .done-item,
 .profile-card,
@@ -329,7 +329,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 /* estimation d'XP dans la modale */
 .xp-estimate { font-size: 0.82rem; color: var(--accent); font-weight: 500; margin-top: 2px; }
 
-/* ===================== COINS (topbar) ===================== */
+/* compteur de coins */
 .top-coins {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
   background: #fff7e6; border: 1px solid #f0d999; border-radius: 20px;
@@ -338,11 +338,11 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 }
 .coin-dot { color: #e0a93b; font-size: 0.9rem; }
 
-/* ===================== ONGLET ADMIN ===================== */
+/* onglet admin (violet) */
 .navtab-admin { color: #9b59b6; }
 .navtab-admin.is-active { color: #9b59b6; border-bottom-color: #9b59b6; }
 
-/* ===================== BOUTIQUE ===================== */
+/* --- boutique --- */
 .shop-banner {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; flex-wrap: wrap; margin-bottom: 1.25rem;
@@ -394,7 +394,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 .shop-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .shop-toast .toast-note { opacity: 0.6; font-style: italic; font-size: 0.8rem; }
 
-/* ===================== DASHBOARD ADMIN ===================== */
+/* --- dashboard admin --- */
 .admin-warning {
   background: #fdf3e3; border: 1px solid #f0d999; color: #8a6420;
   border-radius: var(--radius); padding: 12px 16px; font-size: 0.85rem;
@@ -439,3 +439,16 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 @media (max-width: 560px) {
   .admin-stats { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* mes récompenses */
+.rewards-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.reward-row {
+  display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+  background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
+  box-shadow: 0 4px 16px -12px rgba(31,39,51,0.18);
+}
+.reward-emoji { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+.reward-body { flex: 1; }
+.reward-name { font-family: var(--serif); font-size: 1.02rem; font-weight: 600; }
+.reward-meta { font-size: 0.78rem; color: var(--ink-soft); margin-top: 1px; }
+.reward-price { font-weight: 600; color: #a9772a; font-variant-numeric: tabular-nums; flex-shrink: 0; }
