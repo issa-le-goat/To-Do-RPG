@@ -30,3 +30,15 @@ type LeaderboardEntry struct {
 	Name  string `json:"name"`
 	Level int    `json:"lvl"`
 }
+
+type RecurringTask struct {
+	ID          int    `json:"id"`
+	UserID      int    `json:"user_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	StartTime   string `json:"start_time"` // Correspond à Start_Time dans la BDD
+	Duration    int    `json:"duration"`
+	Priority    int    `json:"priority"`
+	State       string `json:"state"`
+	ExpReward   int    `json:"exp_reward"`
+}

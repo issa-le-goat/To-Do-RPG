@@ -91,3 +91,24 @@ func GetLeaderboard(db *sql.DB) ([]Modules.LeaderboardEntry, error) {
 	}
 	return leaderboard, nil
 }
+
+func GetRecurringTasks(db *sql.DB, userID int) ([]Modules.RecurringTask, error) {
+	var tasks []Modules.RecurringTask
+	query := `SELECT ID, ID_User, Name, Description, Start_Time, Duration, Priority, State, Exp_Reward FROM recurring_task WHERE ID_User = ?`
+
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t Modules.RecurringTask
+		err := rows.Scan(&t.ID, &t.UserID, &t.Name, &t.Description, &t.StartTime, &t.Duration, &t.Priority, &t.State, &t.ExpReward)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+	return tasks, nil
+}

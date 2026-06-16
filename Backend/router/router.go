@@ -42,6 +42,7 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 		taskRoutes.GET("/completed/:id", func(c *gin.Context) { Functions.GetCompletedTasksHandler(c, db) })
 		taskRoutes.PUT("/:id/complete", func(c *gin.Context) { Functions.CompleteTaskHandler(c, db) })
 		taskRoutes.DELETE("/:id", func(c *gin.Context) { Functions.DeleteTaskHandler(c, db) })
+		taskRoutes.GET("/recurring/:id", func(c *gin.Context) { Functions.GetRecurringTasksHandler(c, db) })
 	}
 
 	r.GET("/leaderboard", func(c *gin.Context) { Functions.GetLeaderboardHandler(c, db) })

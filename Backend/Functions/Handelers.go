@@ -25,6 +25,7 @@ type TaskInput struct {
 	DueDate     string `json:"due_date" binding:"required"` 
 	Duration    int    `json:"duration" binding:"required"`
 	Priority    int    `json:"priority"`
+	Recurring   bool   `json:"recurring"` // Nouveau champ
 }
 
 type CompleteTaskInput struct {
@@ -67,12 +68,23 @@ func CreateTaskHandler(c *gin.Context, db *sql.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Données invalides"})
 		return
 	}
-	err := CreateTask(db, input.UserID, input.Name, input.Duration, input.Priority, input.DueDate, input.Description)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création"})
-		return
+
+	if input.Recurring {
+		// On utilise DueDate comme Start_Time
+		err := CreateRecurringTask(db, input.UserID, input.Name, input.Duration, input.Priority, input.DueDate, input.Description)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création récurrente"})
+			return
+		}
+		c.JSON(http.StatusCreated, gin.H{"message": "Tâche récurrente créée"})
+	} else {
+		err := CreateTask(db, input.UserID, input.Name, input.Duration, input.Priority, input.DueDate, input.Description)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création"})
+			return
+		}
+		c.JSON(http.StatusCreated, gin.H{"message": "Tâche créée"})
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "Tâche créée"})
 }
 
 // --- GET Handlers ---
@@ -104,6 +116,21 @@ func GetTasksHandler(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }
+
+func GetRecurringTasksHandler(c *gin.Context, db *sql.DB) {
+	userID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID invalide"})
+		return
+	}
+	tasks, err := GetRecurringTasks(db, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur serveur"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"recurring_tasks": tasks})
+}
+
 
 func GetCompletedTasksHandler(c *gin.Context, db *sql.DB) {
 	userID, err := strconv.Atoi(c.Param("id"))
@@ -181,3 +208,4 @@ func DeleteUserHandler(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Utilisateur supprimé"})
 }
+

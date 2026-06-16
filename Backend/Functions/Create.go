@@ -35,3 +35,16 @@ func CreateUser(db *sql.DB, name string, plainPassword string, email string) (in
 
 	return result.LastInsertId()
 }
+
+func CreateRecurringTask(db *sql.DB, userID int, name string, duration int, priority int, startTime string, description string) error {
+	expReward := (duration / 15) * 10 * priority
+
+	query := `INSERT INTO recurring_task (ID_User, Name, Duration, Priority, Exp_Reward, Start_Time, Description, State) VALUES (?, ?, ?, ?, ?, ?, ?, 'todo')`
+	_, err := db.Exec(query, userID, name, duration, priority, expReward, startTime, description)
+	
+	if err != nil {
+		log.Printf("Erreur création tâche récurrente : %v", err)
+		return err
+	}
+	return nil
+}
