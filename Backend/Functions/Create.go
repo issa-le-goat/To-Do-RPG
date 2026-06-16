@@ -6,31 +6,29 @@ import (
 	"log"
 )
 
-func CreateTask(db *sql.DB, userID int, name string, duration int, priority int) {
-	// Notre petite règle métier : 10 XP par tranche de 15 min * priorité
+func CreateTask(db *sql.DB, userID int, name string, duration int, priority int, dueDate string, description string) error {
 	expReward := (duration / 15) * 10 * priority
 
-	query := `INSERT INTO Task (ID_User, Name, Duration, Priority, Exp_Reward) VALUES (?, ?, ?, ?, ?)`
-	_, err := db.Exec(query, userID, name, duration, priority, expReward)
+	query := `INSERT INTO task (ID_User, Name, Duration, Priority, Exp_Reward, Due_Date, Description, State) VALUES (?, ?, ?, ?, ?, ?, ?, 'todo')`
+	_, err := db.Exec(query, userID, name, duration, priority, expReward, dueDate, description)
 	
 	if err != nil {
 		log.Printf("Erreur création tâche : %v", err)
-	} else {
-		fmt.Printf("Tâche '%s' créée ! Récompense prévue : %d XP\n", name, expReward)
+		return err
 	}
+	return nil
 }
 
-func CreateUser(db *sql.DB, name string, plainPassword string) (int64, error) {
-	// 1. On hashe le mot de passe avant de l'envoyer à la base
+func CreateUser(db *sql.DB, name string, plainPassword string, email string) (int64, error) {
 	hashedPassword, err := HashPassword(plainPassword)
 	if err != nil {
 		return 0, err
 	}
 
-	// 2. On insère le nom ET le mot de passe hashé
-	query := "INSERT INTO Users (Name, Password) VALUES (?, ?)"
+	// Correspondance stricte avec les colonnes Mdp et Mail
+	query := "INSERT INTO users (Name, Mdp, Mail) VALUES (?, ?, ?)"
 	
-	result, err := db.Exec(query, name, hashedPassword)
+	result, err := db.Exec(query, name, hashedPassword, email)
 	if err != nil {
 		return 0, fmt.Errorf("erreur lors de la création: %v", err)
 	}

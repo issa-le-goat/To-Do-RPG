@@ -2,24 +2,28 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"todo-app/router"
+
 	_ "github.com/go-sql-driver/mysql"
-	"fmt"
 )
 
 func main() {
-	// Connexion DB
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:8889)/votre_base")
+	// Connexion DB : ajout de parseTime=true pour formater correctement les DATETIME
+	dsn := "root:root@tcp(127.0.0.1:3306)/to_do_list?parseTime=true"
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Erreur d'ouverture de la base de données : ", err)
 	}
 	defer db.Close()
 
-	// Initialisation du routeur via notre fichier router.go
+	if err = db.Ping(); err != nil {
+		log.Fatal("Impossible de se connecter à la base de données : ", err)
+	}
+
 	r := router.SetupRouter(db)
 
-	// Lancement
-	r.Run(":3000")
 	fmt.Println("Serveur lancé sur le port 3000")
+	r.Run(":3000")
 }
