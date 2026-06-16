@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Présentation du Projet</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fdfdfd;
+            color: #2b2b2b;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+            scroll-behavior: smooth;
+        }
+        .slide {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            box-sizing: border-box;
+        }
+        .slide:nth-child(even) {
+            background-color: #f4f6f9;
+        }
+        .slide-content {
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 3.5rem;
+            color: #0f4c81;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 1.8rem;
+            color: #555;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        h2 {
+            font-size: 2.5rem;
+            color: #0f4c81;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+        }
+        p, li {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        ul {
+            padding-left: 2rem;
+        }
+        li {
+            margin-bottom: 1.2rem;
+        }
+        .center-text {
+            text-align: center;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        .table th, .table td {
+            border: 1px solid #ccc;
+            padding: 1.2rem;
+            text-align: left;
+            font-size: 1.3rem;
+        }
+        .table th {
+            background-color: #0f4c81;
+            color: white;
+        }
+        .demo-box {
+            border: 3px dashed #0f4c81;
+            padding: 4rem;
+            text-align: center;
+            border-radius: 10px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1 -->
+    <div class="slide">
+        <div class="slide-content center-text">
+            <h1>Titre du Projet</h1>
+            <div class="subtitle">Conception, Choix Technologiques et Sécurité</div>
+        </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Vision Globale</h2>
+            <p>Ce projet consiste à développer une application web robuste et intuitive, en mettant l'accent sur les performances techniques et la sécurité des données.</p>
+            <p>L'objectif principal est de fournir une solution fiable tout en gardant une maîtrise complète sur l'architecture et le code source.</p>
+        </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Objectifs Techniques</h2>
+            <ul>
+                <li><strong>Simplicité et Performance :</strong> Un code léger permettant un chargement instantané.</li>
+                <li><strong>Maintenabilité :</strong> Une architecture claire et sans dépendances superflues.</li>
+                <li><strong>Sécurité :</strong> Une protection rigoureuse des données sensibles des utilisateurs.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Stack Frontend : Le choix du "Vanilla"</h2>
+            <p>L'interface a été entièrement développée avec les technologies standards du web (HTML, CSS, JS), sans l'utilisation de frameworks externes.</p>
+            <ul>
+                <li><strong>HTML :</strong> Structure sémantique et accessibilité.</li>
+                <li><strong>CSS :</strong> Mise en page adaptative et design épuré.</li>
+                <li><strong>JavaScript :</strong> Logique interactive et gestion dynamique du DOM.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Pourquoi se passer de Frameworks ?</h2>
+            <ul>
+                <li><strong>Contrôle total :</strong> Compréhension précise de chaque ligne de code exécutée.</li>
+                <li><strong>Légèreté :</strong> Absence de bibliothèques lourdes à charger.</li>
+                <li><strong>Pérennité :</strong> Le code standard (Vanilla) ne devient jamais obsolète et ne nécessite pas de mises à jour de dépendances complexes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 6 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Architecture et Sécurité</h2>
+            <p>Si le frontend garantit l'expérience utilisateur, le backend a la responsabilité de la sécurité de l'application.</p>
+            <p>Le point critique de tout système d'authentification est la gestion et le stockage des informations d'identification.</p>
+        </div>
+    </div>
+
+    <!-- Slide 7 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>L'enjeu du stockage des mots de passe</h2>
+            <p><strong>Règle d'or en cybersécurité :</strong> Il ne faut jamais stocker un mot de passe en clair dans une base de données.</p>
+            <p>Les mots de passe doivent subir une transformation mathématique irréversible appelée <em>hachage</em>. Ainsi, même en cas de fuite de la base de données, les mots de passe originaux restent illisibles.</p>
+        </div>
+    </div>
+
+    <!-- Slide 8 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Qu'est-ce que Bcrypt ?</h2>
+            <p>Bcrypt est un algorithme de hachage cryptographique spécialement conçu pour les mots de passe. Il intègre deux mécanismes fondamentaux :</p>
+            <ul>
+                <li><strong>Le Sel (Salt) :</strong> Une chaîne de caractères aléatoire ajoutée au mot de passe avant le hachage. Cela empêche les attaques par dictionnaire (Rainbow Tables).</li>
+                <li><strong>Le Facteur de Coût (Cost) :</strong> Un mécanisme qui ralentit volontairement le calcul du hachage.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 9 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Pourquoi Bcrypt plutôt que MD5 ou SHA ?</h2>
+            <table class="table">
+                <tr>
+                    <th>MD5 / SHA-256</th>
+                    <th>Bcrypt</th>
+                </tr>
+                <tr>
+                    <td>Conçus pour être <strong>ultra-rapides</strong> (vérification de fichiers).</td>
+                    <td>Conçu pour être <strong>lent</strong> par nature.</td>
+                </tr>
+                <tr>
+                    <td>Un attaquant peut tester des milliards de combinaisons par seconde (Brute Force).</td>
+                    <td>Le calcul lent empêche physiquement le Brute Force à grande échelle.</td>
+                </tr>
+                <tr>
+                    <td>Vitesse fixe.</td>
+                    <td>Le facteur de coût est ajustable pour s'adapter à l'évolution de la puissance matérielle.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 10 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Page de Démonstration</h2>
+            <div class="demo-box">
+                <h1 style="margin: 0; color: #555;">Démonstration en Direct</h1>
+                <p>Présentation des fonctionnalités de l'application.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11 -->
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Synthèse et Perspectives</h2>
+            <ul>
+                <li><strong>Bilan technique :</strong> Une interface rapide et autonome grâce au Vanilla JS.</li>
+                <li><strong>Sécurité validée :</strong> Protection renforcée de l'authentification avec Bcrypt.</li>
+                <li><strong>Perspectives :</strong> Une base de code saine, prête à être étendue pour de futures fonctionnalités.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 12 -->
+    <div class="slide">
+        <div class="slide-content center-text">
+            <h1>Questions & Réponses</h1>
+            <div class="subtitle" style="margin-top: 2rem;">Merci de votre attention.</div>
+        </div>
+    </div>
+
+</body>
+</html>
