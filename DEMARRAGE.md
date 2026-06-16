@@ -60,3 +60,26 @@ Le code Go attend précisément ces colonnes :
 - table `task`  : ID, ID_User, Name, Description, Due_Date, Duration, Priority, State, Exp_Reward
 Si tes colonnes ont d'autres noms, aligne-les avec `Backend/Tables Sql.docx`
 ou corrige les requêtes dans `Backend/Functions/`.
+
+## Boutique, coins et compte admin (ajouts)
+- Chaque tâche terminée rapporte des COINS selon sa priorité :
+  Normale = 10, Importante = 25, Urgente = 50.
+- Coins et XP s'affichent ensemble dans la barre du haut.
+- Onglet « Boutique » : récompenses FICTIVES (cartes cadeaux, voyages, etc.)
+  à échanger contre des coins. Ce ne sont PAS de vrais lots — c'est une démo.
+- Un compte ADMIN est fourni :
+    pseudo : admin   |   e-mail : admin@admin.com   |   mot de passe : admin001
+  Il ouvre un onglet « Admin » avec un dashboard pour s'attribuer XP et coins
+  à volonté, et cibler n'importe quel compte local.
+  ⚠️ Le mot de passe est en clair dans le code : c'est une maquette, ne pas
+  réutiliser ce mot de passe ni publier l'app telle quelle.
+
+### Important : admin et XP en mode relié au serveur
+Le compte admin est TOUJOURS géré côté navigateur (le serveur Go n'a pas de
+compte admin). L'attribution de COINS marche partout (les coins sont gérés
+côté client). En revanche, donner de l'XP à un compte connecté au SERVEUR
+n'est pas possible depuis le front : l'XP serveur ne se modifie qu'via une
+route Go dédiée, à ajouter si besoin. Exemple de route à créer côté back :
+    PUT /admin/users/:id/grant   body { exp: 1000 }
+qui ferait un UPDATE users SET Exp = Exp + ? ... (à protéger par un contrôle
+admin réel). L'attribution d'XP fonctionne en revanche sur les comptes locaux.

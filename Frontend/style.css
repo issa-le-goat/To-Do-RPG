@@ -328,3 +328,114 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01e
 
 /* estimation d'XP dans la modale */
 .xp-estimate { font-size: 0.82rem; color: var(--accent); font-weight: 500; margin-top: 2px; }
+
+/* ===================== COINS (topbar) ===================== */
+.top-coins {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  background: #fff7e6; border: 1px solid #f0d999; border-radius: 20px;
+  padding: 7px 14px; font-weight: 600; color: #a9772a;
+  font-variant-numeric: tabular-nums;
+}
+.coin-dot { color: #e0a93b; font-size: 0.9rem; }
+
+/* ===================== ONGLET ADMIN ===================== */
+.navtab-admin { color: #9b59b6; }
+.navtab-admin.is-active { color: #9b59b6; border-bottom-color: #9b59b6; }
+
+/* ===================== BOUTIQUE ===================== */
+.shop-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 1.25rem;
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 12px 18px;
+  box-shadow: 0 4px 16px -12px rgba(31,39,51,0.18);
+}
+.shop-balance { font-size: 1.05rem; color: var(--ink); }
+.shop-balance b { color: #a9772a; }
+.shop-disclaimer { font-size: 0.78rem; color: var(--ink-faint); font-style: italic; }
+
+.shop-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+}
+.shop-card {
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 18px 16px 16px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  box-shadow: 0 4px 16px -12px rgba(31,39,51,0.18);
+  transition: transform 0.12s, box-shadow 0.2s;
+}
+.shop-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -16px rgba(91,108,255,0.35); }
+.shop-emoji { font-size: 2.4rem; line-height: 1; }
+.shop-tag {
+  font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft);
+  padding: 2px 9px; border-radius: 12px; font-weight: 600;
+}
+.shop-name { font-family: var(--serif); font-size: 1rem; font-weight: 600; min-height: 2.6em; display: flex; align-items: center; }
+.shop-cost { font-weight: 600; color: #a9772a; font-variant-numeric: tabular-nums; }
+.shop-buy {
+  margin-top: 6px; width: 100%; font-family: var(--sans); font-size: 0.85rem; font-weight: 500;
+  padding: 9px; border: none; border-radius: 10px; cursor: pointer;
+  background: var(--accent); color: #fff; transition: filter 0.15s, transform 0.1s;
+}
+.shop-buy:hover:not(:disabled) { filter: brightness(1.08); }
+.shop-buy:active:not(:disabled) { transform: scale(0.97); }
+.shop-buy:disabled { background: var(--paper-line); color: var(--ink-faint); cursor: not-allowed; }
+.shop-owned { font-size: 0.74rem; color: var(--ok); font-weight: 600; }
+
+.shop-toast {
+  position: fixed; left: 50%; bottom: 28px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 12px;
+  font-size: 0.9rem; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 12px 30px -10px rgba(0,0,0,0.4); z-index: 150; max-width: 90vw;
+}
+.shop-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.shop-toast .toast-note { opacity: 0.6; font-style: italic; font-size: 0.8rem; }
+
+/* ===================== DASHBOARD ADMIN ===================== */
+.admin-warning {
+  background: #fdf3e3; border: 1px solid #f0d999; color: #8a6420;
+  border-radius: var(--radius); padding: 12px 16px; font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+.admin-card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 18px;
+  padding: 1.5rem; box-shadow: 0 10px 30px -18px rgba(31,39,51,0.22);
+}
+.admin-label { display: block; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.admin-select {
+  width: 100%; font-family: var(--sans); font-size: 0.95rem; padding: 10px 12px;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px;
+  color: var(--ink); outline: none; margin-bottom: 1.25rem;
+}
+.admin-select:focus { border-color: #9b59b6; }
+.admin-section-title { font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 0.6rem; }
+.admin-btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+.admin-btn {
+  font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 9px 14px;
+  border: 1px solid #9b59b6; background: #f3e8fa; color: #7d3fa0;
+  border-radius: 10px; cursor: pointer; transition: all 0.12s;
+}
+.admin-btn:hover { background: #9b59b6; color: #fff; }
+.admin-btn:active { transform: scale(0.96); }
+.admin-btn.coin { border-color: #e0a93b; background: #fdf3e0; color: #a9772a; }
+.admin-btn.coin:hover { background: #e0a93b; color: #fff; }
+.admin-custom { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.admin-custom input {
+  flex: 1; min-width: 90px; font-family: var(--sans); font-size: 0.95rem; padding: 10px 12px;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; color: var(--ink); outline: none;
+}
+.admin-custom input:focus { border-color: #9b59b6; }
+.admin-reset {
+  width: 100%; font-family: var(--sans); font-size: 0.85rem; padding: 11px;
+  background: transparent; border: 1px solid var(--rule); border-radius: 10px;
+  color: var(--ink-soft); cursor: pointer; transition: all 0.15s;
+}
+.admin-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 560px) {
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+}

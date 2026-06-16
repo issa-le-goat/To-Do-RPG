@@ -112,13 +112,60 @@ function defaultProfile(name, pass) {
     pass: obscure(pass),
     mail: "",
     xp: 0,
+    coins: 0,        // monnaie de la boutique
     streak: 0,
     lastDoneDay: null,
     tasks: [],       // { id, title, desc, day(0-6, lundi=0), start("16:00"), durMin, xp, done, doneAt }
     history: [],     // { type, task, at }
+    purchases: [],   // { rewardId, name, cost, at }
     nextId: 1,
     createdAt: Date.now(),
   };
+}
+
+/* =========================================================
+   COINS — gagnés selon la priorité de la tâche
+   ========================================================= */
+const COINS_BY_PRIORITY = { 1: 10, 2: 25, 3: 50 };
+function coinsForTask(priority) {
+  return COINS_BY_PRIORITY[priority] || COINS_BY_PRIORITY[1];
+}
+
+/* =========================================================
+   CATALOGUE BOUTIQUE — récompenses FICTIVES (démo)
+   Ce ne sont pas de vrais lots : aucune valeur réelle.
+   ========================================================= */
+const SHOP_CATALOG = [
+  { id: "gc_amazon",  name: "Carte cadeau Amazon 25€",   cost: 500,  emoji: "🎁", tag: "Carte cadeau" },
+  { id: "gc_fnac",    name: "Carte cadeau Fnac 50€",      cost: 950,  emoji: "🎟️", tag: "Carte cadeau" },
+  { id: "gc_steam",   name: "Carte Steam 20€",            cost: 420,  emoji: "🎮", tag: "Carte cadeau" },
+  { id: "cinema",     name: "2 places de cinéma",         cost: 300,  emoji: "🍿", tag: "Sortie" },
+  { id: "resto",      name: "Dîner au restaurant",        cost: 700,  emoji: "🍽️", tag: "Sortie" },
+  { id: "spa",        name: "Journée spa & détente",      cost: 1200, emoji: "💆", tag: "Bien-être" },
+  { id: "weekend",    name: "Week-end à Barcelone",       cost: 4000, emoji: "✈️", tag: "Voyage" },
+  { id: "trip_rome",  name: "Voyage à Rome (3 nuits)",    cost: 6000, emoji: "🏛️", tag: "Voyage" },
+  { id: "trip_bali",  name: "Séjour à Bali (1 semaine)",  cost: 12000, emoji: "🏝️", tag: "Voyage" },
+];
+
+// Tâches fictives pré-remplies pour une démo immédiate (mode local).
+function seedDemoTasks(profile) {
+  const t = (id, title, desc, day, start, durMin, priority, done) => ({
+    id, title, desc, day, start, durMin, priority,
+    xp: Math.floor(durMin / 15) * 10 * priority,
+    coins: coinsForTask(priority),
+    done: !!done, doneAt: done ? Date.now() - id * 3600000 : null,
+    gained: done ? Math.floor(durMin / 15) * 10 * priority : 0,
+  });
+  profile.tasks = [
+    t(1, "Réviser les maths", "Chapitre sur les intégrales", 0, "09:00", 90, 2, false),
+    t(2, "Séance de sport", "Course + musculation", 0, "18:00", 60, 1, false),
+    t(3, "Rendre le dossier", "Projet de fin de semestre", 2, "14:00", 120, 3, false),
+    t(4, "Appeler le médecin", "Prendre rendez-vous", 1, "11:00", 15, 1, true),
+    t(5, "Lecture", "30 pages du roman", 3, "20:00", 45, 1, false),
+    t(6, "Réunion d'équipe", "Point hebdomadaire", 4, "10:00", 60, 2, true),
+    t(7, "Courses", "Liste de la semaine", 5, "16:00", 45, 1, false),
+  ];
+  profile.nextId = 8;
 }
 
 // Joueurs fictifs pour étoffer le classement.
@@ -141,6 +188,14 @@ function seedFakePlayers() {
       users[key] = p;
     }
   });
+  // Compte ADMIN (démo) — mot de passe en clair : à ne JAMAIS réutiliser ailleurs.
+  if (!users["admin"]) {
+    const a = defaultProfile("admin", "admin001");
+    a.mail = "admin@admin.com";
+    a.isAdmin = true;
+    a.xp = 0;
+    users["admin"] = a;
+  }
   localStorage.setItem(SEED_KEY, "1");
   saveUsers();
 }
@@ -192,6 +247,23 @@ async function submitAuth() {
   if (pass.length < 4) { authError.textContent = "Mot de passe : 4 caractères minimum."; return; }
   const key = name.toLowerCase();
 
+  // ---- Compte ADMIN : toujours géré en local, même si le back tourne ----
+  // (le serveur Go n'a pas de compte admin ni de route d'attribution d'XP)
+  if (mode === "login" && (key === "admin" || key === "admin@admin.com")) {
+    // s'assurer que le compte admin existe (au cas où le seed live a été sauté)
+    if (!users["admin"]) {
+      const a = defaultProfile("admin", "admin001");
+      a.mail = "admin@admin.com";
+      a.isAdmin = true;
+      users["admin"] = a;
+      saveUsers();
+    }
+    const adm = users["admin"];
+    if (adm.pass !== obscure(pass)) { authError.textContent = "Mot de passe admin incorrect."; return; }
+    startSession("admin", false);
+    return;
+  }
+
   // ---- Mode LIVE : on parle au back Go ----
   if (await isLive()) {
     const { api } = window.YboostApi;
@@ -219,6 +291,7 @@ async function submitAuth() {
     if (users[key]) { authError.textContent = "Ce nom est déjà pris."; return; }
     const p = defaultProfile(name, pass);
     p.mail = authMail.value.trim();
+    seedDemoTasks(p);   // tâches fictives pour démarrer tout de suite
     users[key] = p;
     saveUsers();
     startSession(key, true);
@@ -240,10 +313,12 @@ function startSession(key, isNew) {
   // migration douce
   const u = data();
   if (u.xp === undefined) u.xp = 0;
+  if (u.coins === undefined) u.coins = 0;
   if (u.streak === undefined) u.streak = 0;
   if (u.lastDoneDay === undefined) u.lastDoneDay = null;
   if (!Array.isArray(u.tasks)) u.tasks = [];
   if (!Array.isArray(u.history)) u.history = [];
+  if (!Array.isArray(u.purchases)) u.purchases = [];
   if (u.nextId === undefined) u.nextId = 1;
   if (u.mail === undefined) u.mail = "";
   saveUsers();
@@ -251,9 +326,17 @@ function startSession(key, isNew) {
   authName.value = ""; authPass.value = ""; authMail.value = "";
   authView.hidden = true;
   appView.hidden = false;
+  applyAdminUI(!!u.isAdmin);
   if (isNew) log("add", "Compte créé");
-  goTo("planning");
+  goTo(u.isAdmin ? "admin" : "planning");
   refreshTopBar();
+}
+
+// Affiche/masque l'onglet Admin selon le compte.
+function applyAdminUI(isAdmin) {
+  const tab = document.querySelector('.navtab[data-page="admin"]');
+  if (tab) tab.hidden = !isAdmin;
+  document.body.classList.toggle("is-admin", isAdmin);
 }
 
 function logout() {
@@ -354,7 +437,7 @@ function log(type, taskText) {
 /* =========================================================
    NAVIGATION ENTRE PAGES
    ========================================================= */
-const PAGES = ["planning", "done", "profile", "leaderboard"];
+const PAGES = ["planning", "done", "shop", "profile", "leaderboard", "admin"];
 function goTo(page) {
   document.querySelectorAll(".navtab").forEach((t) =>
     t.classList.toggle("is-active", t.dataset.page === page)
@@ -365,8 +448,10 @@ function goTo(page) {
   });
   if (page === "planning") renderPlanning();
   if (page === "done") renderDone();
+  if (page === "shop") renderShop();
   if (page === "profile") renderProfile();
   if (page === "leaderboard") renderLeaderboard();
+  if (page === "admin") renderAdmin();
 }
 document.querySelectorAll(".navtab").forEach((t) => {
   t.onclick = () => goTo(t.dataset.page);
@@ -387,6 +472,8 @@ function refreshTopBar() {
   document.getElementById("topXpBar").style.width = info.pct + "%";
   document.getElementById("topXpBar").style.background = g.color;
   document.getElementById("topXpText").textContent = info.inLevel + " / " + info.need + " XP";
+  const coinEl = document.getElementById("topCoins");
+  if (coinEl) coinEl.textContent = (u.coins || 0).toLocaleString("fr-FR");
 }
 
 /* =========================================================
@@ -665,14 +752,19 @@ document.getElementById("mDone").onclick = async () => {
     const doneBtn = document.getElementById("mDone");
     doneBtn.disabled = true;
     try {
+      const task = data().tasks.find((x) => x.id === editingId);
       await window.YboostApi.api.completeTask(editingId, serverUserId);
       await syncTasks();
       await syncProfile();
+      // Les coins sont gérés côté client (le back ne les connaît pas).
+      const gainCoins = coinsForTask(task ? task.priority : 1);
+      data().coins = (data().coins || 0) + gainCoins;
+      saveUsers();
       closeModal();
       refreshTopBar();
       renderPlanning();
       renderDone();
-      flyXp("✓");
+      flyXp("✓ +" + gainCoins + " coins");
     } catch (err) {
       alert("Erreur : " + (err.message || "impossible de terminer"));
     } finally {
@@ -691,12 +783,17 @@ document.getElementById("mDone").onclick = async () => {
     const gain = xpGain(t.xp);
     t.gained = gain;
     data().xp += gain;
-    log("done", `+${gain} XP · ${t.title}`);
-    flyXp(gain);
+    const gainCoins = coinsForTask(t.priority || 1);
+    t.coinsGained = gainCoins;
+    data().coins = (data().coins || 0) + gainCoins;
+    log("done", `+${gain} XP · +${gainCoins} coins · ${t.title}`);
+    flyXp("+" + gain + " XP · +" + gainCoins + " coins");
   } else {
     t.done = false;
     data().xp = Math.max(0, data().xp - (t.gained || 0));
+    data().coins = Math.max(0, (data().coins || 0) - (t.coinsGained || 0));
     t.gained = 0;
+    t.coinsGained = 0;
     log("reopen", t.title);
   }
   saveUsers();
@@ -876,6 +973,143 @@ async function renderLeaderboard() {
 }
 
 /* =========================================================
+   PAGE : BOUTIQUE (récompenses fictives)
+   ========================================================= */
+function renderShop() {
+  const u = data();
+  document.getElementById("shopCoins").textContent = (u.coins || 0).toLocaleString("fr-FR");
+  const grid = document.getElementById("shopGrid");
+  grid.innerHTML = "";
+  SHOP_CATALOG.forEach((r) => {
+    const owned = (u.purchases || []).filter((p) => p.rewardId === r.id).length;
+    const affordable = (u.coins || 0) >= r.cost;
+    const card = document.createElement("div");
+    card.className = "shop-card";
+    card.innerHTML = `
+      <div class="shop-emoji">${r.emoji}</div>
+      <span class="shop-tag">${r.tag}</span>
+      <div class="shop-name">${escapeHtml(r.name)}</div>
+      <div class="shop-cost"><span class="coin-dot">●</span> ${r.cost.toLocaleString("fr-FR")}</div>
+      <button class="shop-buy" ${affordable ? "" : "disabled"}>
+        ${affordable ? "Échanger" : "Pas assez de coins"}
+      </button>
+      ${owned ? `<div class="shop-owned">Obtenu ×${owned}</div>` : ""}`;
+    card.querySelector(".shop-buy").onclick = () => buyReward(r);
+    grid.appendChild(card);
+  });
+}
+
+function buyReward(r) {
+  const u = data();
+  if ((u.coins || 0) < r.cost) return;
+  u.coins -= r.cost;
+  u.purchases = u.purchases || [];
+  u.purchases.unshift({ rewardId: r.id, name: r.name, cost: r.cost, at: Date.now() });
+  log("buy", `−${r.cost} coins · ${r.name}`);
+  saveUsers();
+  refreshTopBar();
+  renderShop();
+  // petit bandeau de confirmation (fictif)
+  showShopToast(r);
+}
+
+function showShopToast(r) {
+  const t = document.getElementById("shopToast");
+  if (!t) return;
+  t.innerHTML = `${r.emoji} <b>${escapeHtml(r.name)}</b> ajouté à tes récompenses ! <span class="toast-note">(récompense fictive — démo)</span>`;
+  t.classList.add("show");
+  clearTimeout(showShopToast._t);
+  showShopToast._t = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* =========================================================
+   PAGE : DASHBOARD ADMIN
+   ---------------------------------------------------------
+   Donne XP et coins à volonté (mode démo local). En mode
+   relié au back, l'XP serveur nécessiterait une route Go
+   dédiée (absente pour l'instant) : voir le guide.
+   ========================================================= */
+function renderAdmin() {
+  const u = data();
+  if (!u.isAdmin) { goTo("planning"); return; }
+  document.getElementById("adXp").textContent = (u.xp || 0).toLocaleString("fr-FR");
+  document.getElementById("adCoins").textContent = (u.coins || 0).toLocaleString("fr-FR");
+  const info = currentLevelInfo(u);
+  document.getElementById("adLevel").textContent = info.level;
+  document.getElementById("adGrade").textContent = gradeFor(info.level).name;
+
+  // liste des comptes (pour donner XP/coins à un joueur ciblé)
+  const sel = document.getElementById("adTarget");
+  if (sel && !sel.dataset.filled) {
+    sel.innerHTML = "";
+    Object.keys(users).forEach((k) => {
+      const o = document.createElement("option");
+      o.value = k;
+      o.textContent = users[k].display + (k === current ? " (toi)" : "") + (users[k].fake ? " · fictif" : "");
+      sel.appendChild(o);
+    });
+    sel.value = current;
+    sel.dataset.filled = "1";
+  }
+}
+
+// Ajoute de l'XP (et fait monter le niveau localement) à un compte.
+function adminGrantXp(targetKey, amount) {
+  const u = users[targetKey];
+  if (!u) return;
+  if (u.live) {
+    // En live, l'XP est gérée par le serveur : on ne peut pas la forcer ici.
+    alert("XP serveur non modifiable depuis le front (il faudrait une route admin côté Go). Voir DEMARRAGE.md.");
+    return;
+  }
+  u.xp = Math.max(0, (u.xp || 0) + amount);
+  saveUsers();
+  if (targetKey === current) refreshTopBar();
+  renderAdmin();
+}
+
+function adminGrantCoins(targetKey, amount) {
+  const u = users[targetKey];
+  if (!u) return;
+  u.coins = Math.max(0, (u.coins || 0) + amount);
+  saveUsers();
+  if (targetKey === current) refreshTopBar();
+  renderAdmin();
+}
+
+// Câblage des boutons du dashboard (une fois le DOM prêt).
+function wireAdminButtons() {
+  const grid = document.getElementById("adminButtons");
+  if (!grid) return;
+  grid.querySelectorAll("[data-xp]").forEach((b) => {
+    b.onclick = () => adminGrantXp(document.getElementById("adTarget").value, Number(b.dataset.xp));
+  });
+  grid.querySelectorAll("[data-coins]").forEach((b) => {
+    b.onclick = () => adminGrantCoins(document.getElementById("adTarget").value, Number(b.dataset.coins));
+  });
+  const customBtn = document.getElementById("adCustomBtn");
+  if (customBtn) customBtn.onclick = () => {
+    const target = document.getElementById("adTarget").value;
+    const xp = Number(document.getElementById("adCustomXp").value) || 0;
+    const coins = Number(document.getElementById("adCustomCoins").value) || 0;
+    if (xp) adminGrantXp(target, xp);
+    if (coins) adminGrantCoins(target, coins);
+  };
+  const resetBtn = document.getElementById("adResetBtn");
+  if (resetBtn) resetBtn.onclick = () => {
+    const target = document.getElementById("adTarget").value;
+    const u = users[target];
+    if (!u) return;
+    if (confirm("Remettre XP, niveau et coins de ce compte à zéro ?")) {
+      u.xp = 0; u.coins = 0; if (u.live) { /* niveau serveur inchangé */ }
+      saveUsers();
+      if (target === current) refreshTopBar();
+      renderAdmin();
+    }
+  };
+}
+
+/* =========================================================
    DÉMARRAGE
    ========================================================= */
 (async function init() {
@@ -884,6 +1118,8 @@ async function renderLeaderboard() {
   const live = await isLive();
   if (live) {
     // En mode live : on ne sème PAS de faux joueurs (le classement vient du serveur).
+    ensureAdminAccount();   // mais l'admin local reste disponible
+    wireAdminButtons();
     const savedId = localStorage.getItem("yboost.srvid");
     if (savedId) {
       try {
@@ -903,6 +1139,8 @@ async function renderLeaderboard() {
   // ---- Mode DÉMO local ----
   seedFakePlayers();
   users = loadUsers();
+  ensureAdminAccount();
+  wireAdminButtons();
   const saved = localStorage.getItem(SESSION_KEY);
   if (saved && users[saved] && !users[saved].fake) {
     startSession(saved, false);
@@ -911,3 +1149,14 @@ async function renderLeaderboard() {
     appView.hidden = true;
   }
 })();
+
+// Garantit que le compte admin local existe (indépendant du back).
+function ensureAdminAccount() {
+  if (!users["admin"]) {
+    const a = defaultProfile("admin", "admin001");
+    a.mail = "admin@admin.com";
+    a.isAdmin = true;
+    users["admin"] = a;
+    saveUsers();
+  }
+}

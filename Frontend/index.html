@@ -58,6 +58,10 @@
         <div class="xpbar-track"><div class="xpbar-fill" id="topXpBar"></div></div>
         <span class="xpbar-text" id="topXpText">0 / 100 XP</span>
       </div>
+      <div class="top-coins" title="Tes coins pour la boutique">
+        <span class="coin-dot">●</span>
+        <span id="topCoins">0</span>
+      </div>
       <button class="icon-btn" id="logoutBtn" aria-label="Se déconnecter" title="Se déconnecter">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       </button>
@@ -67,8 +71,10 @@
     <nav class="navbar">
       <button class="navtab is-active" data-page="planning">Planning</button>
       <button class="navtab" data-page="done">Terminées</button>
+      <button class="navtab" data-page="shop">Boutique</button>
       <button class="navtab" data-page="profile">Profil</button>
       <button class="navtab" data-page="leaderboard">Classement</button>
+      <button class="navtab navtab-admin" data-page="admin" hidden>⚙ Admin</button>
     </nav>
 
     <!-- PAGE PLANNING -->
@@ -152,6 +158,66 @@
         <span class="page-sub">Les joueurs avec le plus d'XP</span>
       </div>
       <ol class="lb-list" id="lbList"></ol>
+    </section>
+
+    <!-- PAGE BOUTIQUE -->
+    <section class="page" id="page-shop" hidden>
+      <div class="page-head">
+        <h2>Boutique</h2>
+        <span class="page-sub">Échange tes coins contre des récompenses</span>
+      </div>
+      <div class="shop-banner">
+        <span class="shop-balance"><span class="coin-dot">●</span> <b id="shopCoins">0</b> coins disponibles</span>
+        <span class="shop-disclaimer">Récompenses fictives — démo, sans valeur réelle.</span>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+      <div class="shop-toast" id="shopToast"></div>
+    </section>
+
+    <!-- PAGE ADMIN (dashboard) -->
+    <section class="page" id="page-admin" hidden>
+      <div class="page-head">
+        <h2>⚙ Dashboard admin</h2>
+        <span class="page-sub">Attribuer XP et coins</span>
+      </div>
+
+      <div class="admin-warning">
+        Espace réservé. En mode relié au serveur, l'XP est gérée par le back :
+        l'attribution d'XP fonctionne sur les comptes locaux. Voir DEMARRAGE.md.
+      </div>
+
+      <div class="admin-stats">
+        <div class="stat"><span class="stat-num" id="adLevel">0</span><span class="stat-lbl">Niveau</span></div>
+        <div class="stat"><span class="stat-num" id="adGrade">Bronze</span><span class="stat-lbl">Grade</span></div>
+        <div class="stat"><span class="stat-num" id="adXp">0</span><span class="stat-lbl">XP</span></div>
+        <div class="stat"><span class="stat-num" id="adCoins">0</span><span class="stat-lbl">Coins</span></div>
+      </div>
+
+      <div class="admin-card">
+        <label class="admin-label" for="adTarget">Compte ciblé</label>
+        <select id="adTarget" class="admin-select"></select>
+
+        <div class="admin-section-title">Donner de l'XP</div>
+        <div class="admin-btn-row" id="adminButtons">
+          <button class="admin-btn" data-xp="100">+100 XP</button>
+          <button class="admin-btn" data-xp="500">+500 XP</button>
+          <button class="admin-btn" data-xp="1000">+1 000 XP</button>
+          <button class="admin-btn" data-xp="10000">+10 000 XP</button>
+          <button class="admin-btn coin" data-coins="100">+100 coins</button>
+          <button class="admin-btn coin" data-coins="500">+500 coins</button>
+          <button class="admin-btn coin" data-coins="5000">+5 000 coins</button>
+          <button class="admin-btn coin" data-coins="50000">+50 000 coins</button>
+        </div>
+
+        <div class="admin-section-title">Montant personnalisé</div>
+        <div class="admin-custom">
+          <input id="adCustomXp" type="number" min="0" placeholder="XP" />
+          <input id="adCustomCoins" type="number" min="0" placeholder="Coins" />
+          <button class="btn-primary small" id="adCustomBtn">Attribuer</button>
+        </div>
+
+        <button class="admin-reset" id="adResetBtn">Réinitialiser ce compte (XP & coins à 0)</button>
+      </div>
     </section>
 
   </div>
