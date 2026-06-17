@@ -19,13 +19,13 @@ type LoginInput struct {
 }
 
 type TaskInput struct {
-	UserID      int    `json:"user_id" binding:"required"`
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description"`
-	DueDate     string `json:"due_date" binding:"required"` 
-	Duration    int    `json:"duration" binding:"required"`
-	Priority    int    `json:"priority"`
-	Recurring   bool   `json:"recurring"` // Nouveau champ
+	UserID      int      `json:"user_id" binding:"required"`
+	Name        string   `json:"name" binding:"required"`
+	Description string   `json:"description"`
+	DueDates    []string `json:"due_dates" binding:"required"` // Modifié : tableau de strings
+	Duration    int      `json:"duration" binding:"required"`
+	Priority    int      `json:"priority"`
+	Recurring   bool     `json:"recurring"`
 }
 
 type CompleteTaskInput struct {
@@ -69,22 +69,23 @@ func CreateTaskHandler(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	if input.Recurring {
-		// On utilise DueDate comme Start_Time
-		err := CreateRecurringTask(db, input.UserID, input.Name, input.Duration, input.Priority, input.DueDate, input.Description)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création récurrente"})
-			return
+	// Boucle pour créer une tâche indépendante par jour sélectionné
+	for _, dueDate := range input.DueDates {
+		if input.Recurring {
+			err := CreateRecurringTask(db, input.UserID, input.Name, input.Duration, input.Priority, dueDate, input.Description)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création récurrente"})
+				return
+			}
+		} else {
+			err := CreateTask(db, input.UserID, input.Name, input.Duration, input.Priority, dueDate, input.Description)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création"})
+				return
+			}
 		}
-		c.JSON(http.StatusCreated, gin.H{"message": "Tâche récurrente créée"})
-	} else {
-		err := CreateTask(db, input.UserID, input.Name, input.Duration, input.Priority, input.DueDate, input.Description)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création"})
-			return
-		}
-		c.JSON(http.StatusCreated, gin.H{"message": "Tâche créée"})
 	}
+	c.JSON(http.StatusCreated, gin.H{"message": "Tâches créées avec succès"})
 }
 
 // --- GET Handlers ---
