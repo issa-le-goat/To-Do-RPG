@@ -11,7 +11,6 @@
 </head>
 <body>
 
-  <!-- ÉCRAN AUTH -->
   <main class="app auth-view" id="authView">
     <div class="auth-head">
       <p class="eyebrow">Yboost</p>
@@ -39,10 +38,8 @@
     <p class="auth-note">Maquette locale : les comptes restent sur cet appareil et ne sont pas chiffrés.</p>
   </main>
 
-  <!-- APP -->
   <div class="shell" id="appView" hidden>
 
-    <!-- Barre du haut : identité + niveau + XP -->
     <header class="topbar">
       <div class="topbar-left">
         <span class="top-medal" id="topMedal"></span>
@@ -67,9 +64,9 @@
       </button>
     </header>
 
-    <!-- Navigation -->
     <nav class="navbar">
       <button class="navtab is-active" data-page="planning">Planning</button>
+      <button class="navtab" data-page="todo">En cours</button>
       <button class="navtab" data-page="done">Terminées</button>
       <button class="navtab" data-page="shop">Boutique</button>
       <button class="navtab" data-page="rewards">Récompenses</button>
@@ -78,7 +75,6 @@
       <button class="navtab navtab-admin" data-page="admin" hidden>⚙ Admin</button>
     </nav>
 
-    <!-- PAGE PLANNING -->
     <section class="page" id="page-planning">
       <div class="week-bar">
         <div class="week-nav">
@@ -95,7 +91,15 @@
       </div>
     </section>
 
-    <!-- PAGE TERMINÉES -->
+    <section class="page" id="page-todo" hidden>
+      <div class="page-head">
+        <h2>Tâches en cours</h2>
+        <span class="page-sub" id="todoSummary"></span>
+      </div>
+      <ul class="done-list" id="todoList"></ul>
+      <p class="empty" id="todoEmpty">Aucune tâche en cours. Repose-toi bien !</p>
+    </section>
+
     <section class="page" id="page-done" hidden>
       <div class="page-head">
         <h2>Tâches terminées</h2>
@@ -105,7 +109,6 @@
       <p class="empty" id="doneEmpty">Aucune tâche terminée pour l'instant. File en gagner !</p>
     </section>
 
-    <!-- PAGE PROFIL -->
     <section class="page" id="page-profile" hidden>
       <div class="profile-card">
         <div class="profile-top">
@@ -152,7 +155,6 @@
       </div>
     </section>
 
-    <!-- PAGE CLASSEMENT -->
     <section class="page" id="page-leaderboard" hidden>
       <div class="page-head">
         <h2>Classement</h2>
@@ -161,7 +163,6 @@
       <ol class="lb-list" id="lbList"></ol>
     </section>
 
-    <!-- PAGE BOUTIQUE -->
     <section class="page" id="page-shop" hidden>
       <div class="page-head">
         <h2>Boutique</h2>
@@ -175,7 +176,6 @@
       <div class="shop-toast" id="shopToast"></div>
     </section>
 
-    <!-- PAGE RÉCOMPENSES (achats effectués) -->
     <section class="page" id="page-rewards" hidden>
       <div class="page-head">
         <h2>Mes récompenses</h2>
@@ -185,7 +185,6 @@
       <p class="empty" id="rewardsEmpty">Tu n'as encore rien échangé. Direction la boutique !</p>
     </section>
 
-    <!-- PAGE ADMIN (dashboard) -->
     <section class="page" id="page-admin" hidden>
       <div class="page-head">
         <h2>⚙ Dashboard admin</h2>
@@ -233,7 +232,6 @@
 
   </div>
 
-  <!-- MODALE TÂCHE -->
   <div class="modal" id="taskModal" hidden>
     <div class="modal-backdrop" id="modalBackdrop"></div>
     <div class="modal-box" role="dialog" aria-modal="true">
@@ -249,10 +247,10 @@
           <textarea id="mDesc" rows="3" placeholder="Détails de la tâche…"></textarea>
         </label>
         <div class="modal-row">
-          <label>Jour
-            <select id="mDay"></select>
+          <label style="flex: 2;">Jour(s)
+            <div id="mDaysContainer" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;"></div>
           </label>
-          <label>Début
+          <label style="flex: 1;">Début
             <input id="mStart" type="time" value="08:00" />
           </label>
         </div>
@@ -268,6 +266,14 @@
             </select>
           </label>
         </div>
+        
+        <div class="modal-row" style="margin-top: 0.5rem;">
+          <label style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer; text-transform: none; letter-spacing: normal;">
+            <input id="mRecurring" type="checkbox" style="width: auto; margin: 0; padding: 0;" />
+            Répéter chaque semaine
+          </label>
+        </div>
+
         <p class="xp-estimate" id="xpEstimate"></p>
         <input id="mXp" type="hidden" value="20" />
       </div>
